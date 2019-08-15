@@ -1,0 +1,4 @@
+(library
+    (name dragoman)
+    (libraries core horn)
+)

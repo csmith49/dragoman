@@ -1,0 +1,12 @@
+opam-version: "2.0"
+name: "dragoman"
+version: "0.1"
+author: "Calvin Smith"
+maintainer: "cjsmith@cs.wisc.edu"
+synopsis: "Object caption interpreter"
+depends: [
+    "ocaml" { >= "4.07.0"}
+    "yojson"
+    "dune"
+    "containers"
+]

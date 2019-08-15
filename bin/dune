@@ -1,0 +1,4 @@
+(executables
+    (names interpret)
+    (libraries dragoman yojson containers)
+)
