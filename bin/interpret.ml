@@ -30,6 +30,8 @@ let table = Horn.Clause.evaluate problem.clause problem.scene
 let _ = vprint "Writing output..."
 let _ = if !output_filename = "" 
     then table |> Horn.Table.to_string |> print_endline
-    else table |> Horn.Table.to_json |> Yojson.Basic.to_file !output_filename
+    else CCIO.with_out 
+            !output_filename 
+            (fun oc -> CCIO.write_line oc (table |> Horn.Table.to_string))
 
 let _ = vprint "Done."

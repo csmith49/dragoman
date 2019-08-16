@@ -109,7 +109,7 @@ let to_json tbl = `Assoc [
     ("rows" , `List (CCList.map irow_to_json tbl.rows))
 ]
 (* print as csv *)
-let to_string ?(delimiter="\t") tbl =
+let to_string ?(delimiter=",") tbl =
     let header = tbl.variables |> CCList.map Variable.to_string |> CCString.concat delimiter in
     let rows = tbl.rows |> CCList.map (CCList.map string_of_int) |> CCList.map (CCString.concat delimiter) in
         CCString.concat "\n" (header :: rows)
