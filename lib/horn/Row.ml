@@ -34,6 +34,8 @@ let join left right =
             match get left var, get right var with
                 | Some i, Some j -> if i = j then
                     Some (var, i) else None
+                | Some i, None -> Some (var, i)
+                | None, Some j -> Some (var, j)
                 | _ -> None)
         |> CCList.all_some
         |> CCOpt.map of_list

@@ -21,4 +21,4 @@ val filter : t -> (Row.t -> bool) -> t
 
 (* output *)
 val to_json : t -> Yojson.Basic.t
-val to_string : t -> string
+val to_string : ?delimiter:string -> t -> string

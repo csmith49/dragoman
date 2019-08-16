@@ -135,9 +135,21 @@
     "clause" : [
         {
             "kind" : "select",
+            "attribute" : "shape",
+            "value" : "cube",
+            "variable" : "x"
+        },
+        {
+            "kind" : "select",
             "attribute" : "color",
             "value" : "yellow",
-            "variable" : "x"
+            "variable" : "y"
+        },
+        {
+            "kind" : "relate",
+            "relation" : "front",
+            "left" : "x",
+            "right" : "y"
         }
     ]
 }

@@ -29,7 +29,7 @@ let table = Horn.Clause.evaluate problem.clause problem.scene
 
 let _ = vprint "Writing output..."
 let _ = if !output_filename = "" 
-    then table |> Horn.Table.to_json |> Yojson.Basic.pretty_to_string |> print_endline
+    then table |> Horn.Table.to_string |> print_endline
     else table |> Horn.Table.to_json |> Yojson.Basic.to_file !output_filename
 
 let _ = vprint "Done."

@@ -108,4 +108,8 @@ let to_json tbl = `Assoc [
     ("keys", `List (CCList.map Variable.to_json tbl.variables)) ;
     ("rows" , `List (CCList.map irow_to_json tbl.rows))
 ]
-let to_string tbl = tbl |> to_json |> Yojson.Basic.to_string
+(* print as csv *)
+let to_string ?(delimiter="\t") tbl =
+    let header = tbl.variables |> CCList.map Variable.to_string |> CCString.concat delimiter in
+    let rows = tbl.rows |> CCList.map (CCList.map string_of_int) |> CCList.map (CCString.concat delimiter) in
+        CCString.concat "\n" (header :: rows)
