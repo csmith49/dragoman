@@ -1,23 +1,16 @@
 type attribute = string
-let wanted : attribute -> bool = fun str ->
-    CCList.mem ~eq:(CCString.equal) str [
-        "size" ; "color" ; "shape" ; "material"
-    ]
 
 module AttrMap = CCMap.Make(CCString)
 
 type t = Cat.t AttrMap.t
 
-let of_json = function
-    | `Assoc ls -> ls
-        |> CCList.map (fun (k, v) ->
-            if wanted k then match Cat.of_json v with
-                | Some c -> Some (k, c)
-                | _ -> None
-            else None)
-        |> CCList.all_some
-        |> CCOpt.map (AttrMap.of_list)
-    | _ -> None
+let of_json json = let module J = Utility.JSON in
+    J.Parse.assoc [
+        ("size", Cat.of_json) ;
+        ("color", Cat.of_json) ;
+        ("shape", Cat.of_json) ;
+        ("material", Cat.of_json)
+    ] json |> CCOpt.map (AttrMap.of_list)
 
 let to_json thing = `Assoc (thing
     |> AttrMap.map (Cat.to_json)

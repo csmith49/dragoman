@@ -1,8 +1,6 @@
 type t = string
 
-let of_json = function
-    | `String s -> Some s
-    | _ -> None
+let of_json = Utility.JSON.string
 let to_json var = `String var
 
 let compare = CCString.compare

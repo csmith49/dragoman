@@ -1,4 +1,4 @@
 (library
     (name dragoman)
-    (libraries core horn)
+    (libraries core horn problem)
 )

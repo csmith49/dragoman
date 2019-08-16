@@ -27,6 +27,9 @@ let empty = {
     rows = [];
     variables = [];
 }
+let empty_with_variables vars = {
+    empty with variables = vars;
+}
 
 let of_row row =
     let assoc = Row.to_list row in
@@ -45,6 +48,8 @@ let add_row tbl row =
         | _ -> None
 
 let of_list rows = match rows with
+    | row :: [] ->
+        Some (of_row row)
     | row :: rest ->
         let tbl = Some (of_row row) in
         let add stbl row = match stbl with
@@ -83,6 +88,11 @@ let join left right =
                 rows = [];
             }
 
+let join_all tbls = match tbls with
+    | tbl :: [] -> tbl
+    | tbl :: rest -> CCList.fold_left join tbl rest
+    | [] -> empty
+
 let filter tbl pred =
     let rows' = tbl.rows
         |> CCList.filter (fun irow ->
@@ -91,3 +101,11 @@ let filter tbl pred =
     {
         tbl with rows = rows';
     }
+
+(* output *)
+let irow_to_json irow = `List (CCList.map (fun i -> `Int i) irow)
+let to_json tbl = `Assoc [
+    ("keys", `List (CCList.map Variable.to_json tbl.variables)) ;
+    ("rows" , `List (CCList.map irow_to_json tbl.rows))
+]
+let to_string tbl = tbl |> to_json |> Yojson.Basic.to_string
