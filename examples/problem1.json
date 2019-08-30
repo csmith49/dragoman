@@ -151,5 +151,9 @@
             "left" : "x",
             "right" : "y"
         }
+    ],
+    "_expected_results" : [
+        "y,x",
+        "0,2"
     ]
 }

@@ -5,12 +5,7 @@ module AttrMap = CCMap.Make(CCString)
 type t = Cat.t AttrMap.t
 
 let of_json json = let module J = Utility.JSON in
-    J.Parse.assoc [
-        ("size", Cat.of_json) ;
-        ("color", Cat.of_json) ;
-        ("shape", Cat.of_json) ;
-        ("material", Cat.of_json)
-    ] json |> CCOpt.map (AttrMap.of_list)
+    J.Parse.assoc_some_items Cat.of_json json |> CCOpt.map (AttrMap.of_list)
 
 let to_json thing = `Assoc (thing
     |> AttrMap.map (Cat.to_json)

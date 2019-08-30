@@ -12,12 +12,7 @@ let of_json json = let module J = Utility.JSON in let open CCOpt.Infix in
     let things = J.assoc json "objects" 
         >>= J.Parse.list Thing.of_json in
     let relations = J.assoc json "relationships"
-        >>= J.Parse.assoc [
-            ("left", Relation.of_json);
-            ("right", Relation.of_json);
-            ("front", Relation.of_json);
-            ("behind", Relation.of_json)
-        ] |> CCOpt.map RelMap.of_list in
+        >>= J.Parse.assoc_some_items Relation.of_json |> CCOpt.map RelMap.of_list in
     match things, relations with
         | Some things, Some relations -> Some {
             things = things ; relations = relations

@@ -49,6 +49,16 @@ let to_string = function
         (Variable.to_string x) ^ "." ^ attr ^ " = " ^ (Core.Cat.to_string value)
 
 let evaluate conjunct scene = match conjunct with
+    (* CASE 1 - a relation where x and y are the same *)
+    | Relate (rel, x, y) when Variable.equal x y ->
+        begin match Core.Scene.relation scene rel with
+            | Some ls -> ls
+                |> CCList.filter_map (fun (i, j) ->
+                    if i == j then
+                        Some (Row.of_list [(x, i)])
+                    else None) |> Table.of_list
+            | _ -> Some (Table.empty_with_variables [x]) end
+    (* CASE 2 - a relation where x and y are distinct variables *)
     | Relate (rel, x, y) ->
         begin match Core.Scene.relation scene rel with
             | Some ls -> ls
@@ -56,6 +66,7 @@ let evaluate conjunct scene = match conjunct with
                     Row.of_list [(x, i) ; (y, j)])
                 |> Table.of_list
             | _ -> Some (Table.empty_with_variables [x]) end
+    (* CASE 3 - selection via attribute *)
     | Select (attr, value, x) ->
         let rows = Core.Scene.things_idx scene
             |> CCList.filter_map (fun (i, thing) ->

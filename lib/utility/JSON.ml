@@ -13,6 +13,23 @@ module Parse = struct
                 >|= (fun v -> (key, v))) parsers
                 |> CCList.all_some
             | _ -> None
+    let assoc_items parser json =
+        match json with
+            | `Assoc ls -> CCList.map (fun (key, item) ->
+                    match parser item with
+                        | Some v -> Some (key, v)
+                        | _ -> None
+                ) ls
+                |> CCList.all_some
+            | _ -> None
+    let assoc_some_items parser json =
+        match json with
+            | `Assoc ls -> CCList.filter_map (fun (key, item) ->
+                    match parser item with
+                        | Some v -> Some (key, v)
+                        | _ -> None) ls
+                |> CCOpt.return
+            | _ -> None
 end
 
 let assoc json key = match json with

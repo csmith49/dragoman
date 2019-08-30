@@ -3,6 +3,8 @@ type 'a parser = Yojson.Basic.t -> 'a option
 module Parse : sig
     val list : 'a parser -> Yojson.Basic.t -> 'a list option
     val assoc : (string * 'a parser) list -> Yojson.Basic.t -> (string * 'a) list option
+    val assoc_items : 'a parser -> Yojson.Basic.t -> (string * 'a) list option
+    val assoc_some_items : 'a parser -> Yojson.Basic.t -> (string * 'a) list option
 end
 
 val assoc : Yojson.Basic.t -> string -> Yojson.Basic.t option
