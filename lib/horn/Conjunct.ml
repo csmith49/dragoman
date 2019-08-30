@@ -56,7 +56,7 @@ let evaluate conjunct scene = match conjunct with
                 |> CCList.filter_map (fun (i, j) ->
                     if i == j then
                         Some (Row.of_list [(x, i)])
-                    else None) |> Table.of_list
+                    else None) |> Table.of_list_with_vars [x]
             | _ -> Some (Table.empty_with_variables [x]) end
     (* CASE 2 - a relation where x and y are distinct variables *)
     | Relate (rel, x, y) ->
@@ -64,7 +64,7 @@ let evaluate conjunct scene = match conjunct with
             | Some ls -> ls
                 |> CCList.map (fun (i, j) ->
                     Row.of_list [(x, i) ; (y, j)])
-                |> Table.of_list
+                |> Table.of_list_with_vars [x;y]
             | _ -> Some (Table.empty_with_variables [x]) end
     (* CASE 3 - selection via attribute *)
     | Select (attr, value, x) ->

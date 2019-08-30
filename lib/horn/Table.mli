@@ -11,6 +11,7 @@ val empty_with_variables : Variable.t list -> t
 val of_row : Row.t -> t
 val add_row : t -> Row.t -> t option
 val of_list : Row.t list -> t option
+val of_list_with_vars : Variable.t list -> Row.t list -> t option
 
 (* manipulation *)
 val project : t -> Variable.t list -> t option

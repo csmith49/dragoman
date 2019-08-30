@@ -58,6 +58,17 @@ let of_list rows = match rows with
         CCList.fold_left add tbl rest
     | [] -> Some empty
 
+let of_list_with_vars variables rows = match rows with
+    | row :: [] ->
+        Some (of_row row)
+    | row :: rest ->
+        let tbl = Some (of_row row) in
+        let add stbl row = match stbl with
+            | Some tbl -> add_row tbl row
+            | _ -> None in
+        CCList.fold_left add tbl rest
+    | [] -> Some (empty_with_variables variables)
+
 (* manipulation *)
 let project tbl vars = rows tbl
     |> CCList.map (fun r -> Row.project r vars)
