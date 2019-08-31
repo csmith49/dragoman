@@ -1,6 +1,6 @@
 type t = string
 
-let of_json = Utility.JSON.string
+let of_json = Utility.JSON.Literal.string
 
 let to_json s = `String s
 

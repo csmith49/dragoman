@@ -39,6 +39,8 @@ module Make (Key : KEY) (Value : VALUE) = struct
 
     module KeySet = CCSet.Make(Key)
 
+    let row_equal = CCList.equal Value.equal
+
     (* exposed accessors *)
     let get key tbl =
         let getter = getter key tbl in
@@ -95,16 +97,6 @@ module Make (Key : KEY) (Value : VALUE) = struct
             tbl with keys = keys;
         }
 
-    (* exposed output stuff *)
-    let to_csv ?(delimiter=",") tbl =
-        let header = tbl.keys
-            |> CCList.map Key.to_string
-            |> CCString.concat delimiter in
-        let rows = tbl.rows
-            |> CCList.map (CCList.map Value.to_string)
-            |> CCList.map (CCString.concat delimiter) in
-        CCString.concat "\n" (header :: rows)
-
     let join left right =
         (* check to make sure neither are the identity *)
         if left.is_identity then right else
@@ -154,4 +146,31 @@ module Make (Key : KEY) (Value : VALUE) = struct
         {
             tbl with rows = CCList.filter row_pred tbl.rows;
         }
+
+    (* exposed comparisons *)
+    let equal left right =
+        (* check if left and right use the same keys *)
+        if not (KeySet.equal (KeySet.of_list left.keys) (KeySet.of_list right.keys)) then false else
+        (* if they do, reoreder right to match left *)
+        let right = project left.keys right |> CCOpt.get_exn in
+        (* check that every row in left is a row in right *)
+        let left_in_right = left.rows
+            |> CCList.for_all (fun r -> CCList.mem ~eq:row_equal r right.rows) in
+        if not left_in_right then false else
+        (* check that every row in right is a row in left *)
+        let right_in_left = right.rows
+            |> CCList.for_all (fun r -> CCList.mem ~eq:row_equal r left.rows) in
+        if not right_in_left then false else
+        (* if all the above, call the two tables equal *)
+        true
+
+    (* exposed output stuff *)
+    let to_csv ?(delimiter=",") tbl =
+        let header = tbl.keys
+            |> CCList.map Key.to_string
+            |> CCString.concat delimiter in
+        let rows = tbl.rows
+            |> CCList.map (CCList.map Value.to_string)
+            |> CCList.map (CCString.concat delimiter) in
+        CCString.concat "\n" (header :: rows)
 end

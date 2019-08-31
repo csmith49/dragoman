@@ -1,12 +1,14 @@
 let input_filename = ref ""
 let output_filename = ref ""
 let verbose = ref false
+let test = ref false
 
 (* spec list *)
 let spec = [
     ("-i", Arg.Set_string input_filename, " Path to input problem file") ;
     ("-o", Arg.Set_string output_filename, " Path to output file");
     ("-v", Arg.Set verbose, " Enables verbose output");
+    ("-t", Arg.Set test, " Enables testing (when no output file provided)")
 ]
 
 (* parse the command line arguments *)
@@ -29,7 +31,14 @@ let table = Horn.Clause.evaluate ~verbose:!verbose problem.clause problem.scene
 
 let _ = vprint "Writing output..."
 let _ = if !output_filename = "" 
-    then table |> Horn.Table.to_csv |> print_endline
+    then 
+    
+        if !test then match problem.expected with
+            | Some e -> if Horn.Table.equal table e 
+                then print_endline "[OK]"
+                else print_endline "[FAIL]"
+            | None -> print_endline "[NO EXPECTATION]"
+        else table |> Horn.Table.to_csv |> print_endline
     else CCIO.with_out 
             !output_filename 
             (fun oc -> CCIO.write_line oc (table |> Horn.Table.to_csv))

@@ -1,6 +1,10 @@
 type 'a parser = Yojson.Basic.t -> 'a option
 
 module Parse = struct
+    let get key parser json = match json with
+        | `Assoc ls -> CCList.assoc_opt ~eq:CCString.equal key ls
+            |> CCOpt.flat_map parser
+        | _ -> None
     let list parser json = match json with
         | `List ls -> CCList.map parser ls
             |> CCList.all_some
@@ -32,18 +36,11 @@ module Parse = struct
             | _ -> None
 end
 
-let assoc json key = match json with
-    | `Assoc ls ->
-        CCList.assoc_opt ~eq:CCString.equal key ls
-    | _ -> None
-
-let string = function
-    | `String s -> Some s
-    | _ -> None
-let int = function
-    | `Int i -> Some i
-    | _ -> None
-let list = function
-    | `List ls -> Some ls
-    | _ -> None
-
+module Literal = struct
+    let string = function
+        | `String s -> Some s
+        | _ -> None
+    let int = function
+        | `Int i -> Some i
+        | _ -> None
+end

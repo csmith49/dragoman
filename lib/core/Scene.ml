@@ -8,11 +8,15 @@ type t = {
     relations : Relation.t RelMap.t;
 }
 
-let of_json json = let module J = Utility.JSON in let open CCOpt.Infix in
-    let things = J.assoc json "objects" 
-        >>= J.Parse.list Thing.of_json in
-    let relations = J.assoc json "relationships"
-        >>= J.Parse.assoc_some_items Relation.of_json |> CCOpt.map RelMap.of_list in
+let of_json json = let module J = Utility.JSON in
+    let things = J.Parse.get 
+        "objects"
+        (J.Parse.list Thing.of_json)
+        json in
+    let relations = J.Parse.get 
+        "relationships"
+        (fun j -> j |> J.Parse.assoc_some_items Relation.of_json |> CCOpt.map RelMap.of_list) 
+        json in
     match things, relations with
         | Some things, Some relations -> Some {
             things = things ; relations = relations

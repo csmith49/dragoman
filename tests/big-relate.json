@@ -1,5 +1,5 @@
 {
-    "scene": {
+    "scene" :  {
         "image_index": 597,
         "objects": [
             {
@@ -356,88 +356,43 @@
             ]
         }
     },
-    "clause": [
+    "clause" : [
         {
-            "kind": "select",
-            "attribute": "size",
-            "value": "large",
-            "variable": "x"
+            "kind" : "select",
+            "attribute" : "size",
+            "value" : "large",
+            "variable" : "x"
         },
         {
-            "kind": "relate",
-            "relation": "left",
-            "left": "x",
-            "right": "y"
+            "kind" : "relate",
+            "relation" : "left",
+            "left" : "x",
+            "right" : "y"
         },
         {
-            "kind": "select",
-            "attribute": "material",
-            "value": "metal",
-            "variable": "y"
+            "kind" : "select",
+            "attribute" : "material",
+            "value" : "metal",
+            "variable" : "y"
         }
     ],
-    "_expected": {
-        "keys": [
-            "y",
-            "x"
-        ],
-        "rows": [
-            [
-                6,
-                4
-            ],
-            [
-                2,
-                4
-            ],
-            [
-                1,
-                4
-            ],
-            [
-                0,
-                4
-            ],
-            [
-                6,
-                3
-            ],
-            [
-                2,
-                3
-            ],
-            [
-                1,
-                3
-            ],
-            [
-                0,
-                3
-            ],
-            [
-                6,
-                2
-            ],
-            [
-                1,
-                2
-            ],
-            [
-                6,
-                1
-            ],
-            [
-                6,
-                0
-            ],
-            [
-                2,
-                0
-            ],
-            [
-                1,
-                0
-            ]
+    "_expected" : {
+        "keys" : ["y", "x"],
+        "rows" : [
+            [6, 4],
+            [2, 4],
+            [1, 4],
+            [0, 4],
+            [6, 3],
+            [2, 3],
+            [1, 3],
+            [0, 3],
+            [6, 2],
+            [1, 2],
+            [6, 1],
+            [6, 0],
+            [2, 0],
+            [1, 0]
         ]
     }
 }

@@ -99,6 +99,11 @@ module Make (Key : KEY) (Value : VALUE) : sig
     if [key] is not in [keys tbl] then the output will have no rows *)
     val filter : key -> (value -> bool) -> t -> t
 
+    (** {2} Comparison *)
+
+    (** Using careful sorting, we can check if two tables are equivalent *)
+    val equal : t -> t -> bool
+
     (** {2} Output *)
 
     (** [to_csv ?delimiter=d tbl] constructs a [d]-separated CSV string using the [to_string]s of the [Key] and [Value] modules *)
