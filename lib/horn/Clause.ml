@@ -14,7 +14,7 @@ let evaluate ?(verbose=false) clause scene =
         let tbl = Conjunct.evaluate c scene in
         let _ = if verbose then print_endline ("Evaluating conjunct " ^ (Conjunct.to_string c) ^ ":") in
         let _ = match tbl with
-            | Some tbl -> if verbose then print_endline ( (Table.to_string tbl) ^ "\n")
+            | Some tbl -> if verbose then print_endline ( (Table.to_csv tbl) ^ "\n")
             | _ -> print_endline "NO TABLE\n" in
         tbl
     ) clause in

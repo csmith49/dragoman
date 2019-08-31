@@ -53,28 +53,26 @@ let evaluate conjunct scene = match conjunct with
     | Relate (rel, x, y) when Variable.equal x y ->
         begin match Core.Scene.relation scene rel with
             | Some ls -> ls
-                |> CCList.filter_map (fun (i, j) ->
-                    if i == j then
-                        Some (Row.of_list [(x, i)])
-                    else None) |> Table.of_list_with_vars [x]
-            | _ -> Some (Table.empty_with_variables [x]) end
+                |> CCList.filter_map
+                    (fun (i, j) -> if i == j then Some [i] else None)
+                |> Table.of_list [x]
+            | _ -> Some (Table.empty [x]) end
     (* CASE 2 - a relation where x and y are distinct variables *)
     | Relate (rel, x, y) ->
         begin match Core.Scene.relation scene rel with
             | Some ls -> ls
-                |> CCList.map (fun (i, j) ->
-                    Row.of_list [(x, i) ; (y, j)])
-                |> Table.of_list_with_vars [x;y]
-            | _ -> Some (Table.empty_with_variables [x]) end
+                |> CCList.map (fun (i, j) -> [i ; j])
+                |> Table.of_list [x ; y]
+            | _ -> Some (Table.empty [x]) end
     (* CASE 3 - selection via attribute *)
     | Select (attr, value, x) ->
         let rows = Core.Scene.things_idx scene
             |> CCList.filter_map (fun (i, thing) ->
                 match Core.Thing.attribute thing attr with
                     | Some cat -> if cat = value
-                        then Some (Row.singleton x i)
+                        then Some [i]
                         else None
                     | _ -> None) in
         if CCList.is_empty rows then
-            Some (Table.empty_with_variables [x])
-        else Table.of_list rows
+            Some (Table.empty [x])
+        else Table.of_list [x] rows

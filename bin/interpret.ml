@@ -29,9 +29,9 @@ let table = Horn.Clause.evaluate ~verbose:!verbose problem.clause problem.scene
 
 let _ = vprint "Writing output..."
 let _ = if !output_filename = "" 
-    then table |> Horn.Table.to_string |> print_endline
+    then table |> Horn.Table.to_csv |> print_endline
     else CCIO.with_out 
             !output_filename 
-            (fun oc -> CCIO.write_line oc (table |> Horn.Table.to_string))
+            (fun oc -> CCIO.write_line oc (table |> Horn.Table.to_csv))
 
 let _ = vprint "Done."
