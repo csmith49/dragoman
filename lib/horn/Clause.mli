@@ -5,4 +5,4 @@ val to_json : t -> Yojson.Basic.t
 
 val to_string : t -> string
 
-val evaluate : t -> Core.Scene.t -> Table.t option
+val evaluate : ?verbose:bool -> t -> Core.Scene.t -> Table.t option

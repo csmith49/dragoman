@@ -24,7 +24,7 @@ let problem = Yojson.Basic.from_file !input_filename
     |> CCOpt.get_exn
 
 let _ = vprint ("Evaluating " ^ (Horn.Clause.to_string problem.clause) ^ "...")
-let table = Horn.Clause.evaluate problem.clause problem.scene
+let table = Horn.Clause.evaluate ~verbose:!verbose problem.clause problem.scene
     |> CCOpt.get_exn
 
 let _ = vprint "Writing output..."

@@ -89,15 +89,11 @@ let join left right =
     let rows = 
         CCList.join ~join_row:Row.join 
             (rows left) (rows right) in
+    let vars = (variables left) @ (variables right)
+        |> CCList.uniq ~eq:Variable.equal in
     match rows |> of_list with
-        | Some tbl -> tbl
-        | None -> 
-            let vars = (variables left) @ (variables right)
-                |> CCList.uniq ~eq:Variable.equal in
-            {
-                variables = vars;
-                rows = [];
-            }
+        | Some tbl when tbl.rows != [] -> tbl
+        | _ -> { variables = vars ; rows = [] }
 
 let join_all tbls = match tbls with
     | tbl :: [] -> tbl
