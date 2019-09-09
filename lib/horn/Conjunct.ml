@@ -2,6 +2,19 @@ type t =
     | Relate of Core.Scene.relation * Variable.t * Variable.t
     | Select of Core.Thing.attribute * Core.Cat.t * Variable.t
 
+(* getters *)
+let variables = function
+    | Relate (_, l, r) -> [l ; r]
+    | Select (_, _, x) -> [x]
+
+(* manipulation *)
+let remap conjunct mapping = match conjunct with
+    | Relate (r, x, y) ->
+        Relate (r, Variable.Mapping.remap x mapping, Variable.Mapping.remap y mapping)
+    | Select (a, c, x) ->
+        Select (a, c, Variable.Mapping.remap x mapping)
+
+(* to and from json *)
 let relate_of_json json = let module J = Utility.JSON in
     let relation = J.Parse.get "relation" J.Literal.string json in
     let left = J.Parse.get "left" Variable.of_json json in
@@ -46,6 +59,26 @@ let to_string = function
     | Select (attr, value, x) ->
         (Variable.to_string x) ^ "." ^ attr ^ " = " ^ (Core.Cat.to_string value)
 
+
+(* equality and the like *)
+let equal left right = match left, right with
+    | Relate (rel_l, x_l, y_l), Relate (rel_r, x_r, y_r) ->
+        (rel_l == rel_r) && (Variable.equal x_l x_r) && (Variable.equal y_l y_r)
+    | Select (a_l, val_l, x_l), Select (a_r, val_r, x_r) ->
+        (a_l == a_r) && (Core.Cat.equal val_l val_r) && (Variable.equal x_l x_r)
+    | _ -> false
+
+let equal_wrt_mapping mapping left right = match left, right with
+    | Relate (rel_l, x_l, y_l), Relate (rel_r, x_r, y_r) when rel_l == rel_r ->
+        Some (mapping
+            |> Variable.Mapping.make_equal_in x_l x_r
+            |> Variable.Mapping.make_equal_in y_l y_r)
+    | Select (a_l, val_l, x_l), Select (a_r, val_r, x_r) when a_l == a_r ->
+        if not (Core.Cat.equal val_l val_r) then None else
+        Some (mapping |> Variable.Mapping.make_equal_in x_l x_r)
+    | _ -> None
+
+(* table construction *)
 let evaluate conjunct scene = match conjunct with
     (* CASE 1 - a relation where x and y are the same *)
     | Relate (rel, x, y) when Variable.equal x y ->

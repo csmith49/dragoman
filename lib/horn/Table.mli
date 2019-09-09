@@ -5,6 +5,9 @@ type t
 val empty : Variable.t list -> t
 val of_list : Variable.t list -> (int list) list -> t option
 
+(* getters *)
+val get : Variable.t -> t -> (int list) option
+
 (* manipulation stuff *)
 val join_all : t list -> t
 

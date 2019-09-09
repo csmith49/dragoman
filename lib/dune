@@ -1,4 +1,4 @@
 (library
     (name dragoman)
-    (libraries core horn problem)
+    (libraries core horn problem utility synth)
 )

@@ -11,6 +11,7 @@ let join_all = T.join_all
 let to_csv = T.to_csv
 let of_list = T.of_list
 let equal = T.equal
+let get = T.get
 
 (* Tbl doesn't give a mechanism for making tables from JSON, but we'll want to do so for testing *)
 let of_json json = let module J = Utility.JSON in

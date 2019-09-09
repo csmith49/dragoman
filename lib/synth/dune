@@ -1,0 +1,4 @@
+(library
+    (name synth)
+    (libraries core horn containers)
+)
