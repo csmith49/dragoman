@@ -18,6 +18,10 @@ val to_string : t -> string
 val remap : t -> Horn.Variable.Mapping.t -> t
 val canonicalize : ?base:string -> t -> t
 
+(* checking for nice structural stuff *)
+val connected : t -> bool
+val size : t -> int
+
 (* comparisons *)
 module PartialOrder : sig
     type t = [

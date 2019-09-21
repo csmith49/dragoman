@@ -15,5 +15,4 @@ val relations : t -> relation list
 val relation : t -> relation -> (index * index) list option
 
 (* actually used accesses *)
-val things : t -> Thing.t list
 val things_idx : t -> (index * Thing.t) list

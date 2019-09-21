@@ -44,6 +44,30 @@ let canonicalize ?(base="") caption =
         ) in
     remap caption mapping
 
+(* structural stuff *)
+
+(* necessarily, a variable is connected to itself *)
+(* helps with computing the transitive closure *)
+let connected_variables caption variable =
+    caption.clause
+        |> Horn.Clause.conjuncts
+        |> CCList.flat_map (fun conjunct ->
+            let vars = Horn.Conjunct.variables conjunct in
+            if CCList.mem ~eq:Horn.Variable.equal variable vars then vars else []
+        )
+let rec transitive_connected_variables caption variables =
+    let variables = CCList.sort_uniq ~cmp:Horn.Variable.compare variables in
+    let vars = variables
+        |> CCList.flat_map (connected_variables caption)
+        |> CCList.sort_uniq ~cmp:Horn.Variable.compare in
+    if vars == variables then vars else transitive_connected_variables caption vars
+let connected caption =
+    let variables = CCList.sort_uniq ~cmp:Horn.Variable.compare (variables caption) in
+    let reachable = transitive_connected_variables caption [caption.target] in
+        variables == reachable
+
+let size caption = CCList.length (Horn.Clause.conjuncts caption.clause)
+
 (* comparisons *)
 module PartialOrder = struct
     type t = [

@@ -4,6 +4,8 @@ module T = Utility.Tbl.Make(Variable)(CCInt)
 
 (* exposing the required type *)
 type t = T.t
+type row = int list
+type column = int list
 
 (* and the required functions that are taken straight from T *)
 let empty = T.empty

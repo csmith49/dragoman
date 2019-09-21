@@ -34,13 +34,13 @@ let _ = if !output_filename = ""
     then 
     
         if !test then match problem.expected with
-            | Some e -> if Horn.Table.equal table e 
+            | Some e -> if Core.Table.equal table e 
                 then print_endline "[OK]"
                 else print_endline "[FAIL]"
             | None -> print_endline "[NO EXPECTATION]"
-        else table |> Horn.Table.to_csv |> print_endline
+        else table |> Core.Table.to_csv |> print_endline
     else CCIO.with_out 
             !output_filename 
-            (fun oc -> CCIO.write_line oc (table |> Horn.Table.to_csv))
+            (fun oc -> CCIO.write_line oc (table |> Core.Table.to_csv))
 
 let _ = vprint "Done."

@@ -1,12 +1,14 @@
 (* abstract table type *)
 type t
+type row = Scene.index list
+type column = Scene.index list
 
 (* construction *)
 val empty : Variable.t list -> t
-val of_list : Variable.t list -> (int list) list -> t option
+val of_list : Variable.t list -> row list -> t option
 
 (* getters *)
-val get : Variable.t -> t -> (int list) option
+val get : Variable.t -> t -> column option
 
 (* manipulation stuff *)
 val join_all : t list -> t

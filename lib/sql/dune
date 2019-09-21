@@ -1,0 +1,4 @@
+(library
+    (name SQL)
+    (libraries core sqlite3)
+)

@@ -2,7 +2,7 @@ type t = Conjunct.t list
 
 (* getters *)
 let variables clause = CCList.flat_map Conjunct.variables clause
-    |> CCList.uniq ~eq:Variable.equal
+    |> CCList.uniq ~eq:Core.Variable.equal
 
 let conjuncts clause = clause
 
@@ -28,10 +28,15 @@ let evaluate ?(verbose=false) clause scene =
         let tbl = Conjunct.evaluate c scene in
         let _ = if verbose then print_endline ("Evaluating conjunct " ^ (Conjunct.to_string c) ^ ":") in
         let _ = match tbl with
-            | Some tbl -> if verbose then print_endline ( (Table.to_csv tbl) ^ "\n")
+            | Some tbl -> if verbose then print_endline ( (Core.Table.to_csv tbl) ^ "\n")
             | _ -> print_endline "NO TABLE\n" in
         tbl
     ) clause in
     match CCList.all_some tables with
-        | Some tables -> Some (Table.join_all tables)
+        | Some tables -> Some (Core.Table.join_all tables)
         | _ -> None
+
+(* sql querying *)
+let to_sql clause = clause
+    |> CCList.map Conjunct.to_sql
+    |> SQL.Query.join_all
