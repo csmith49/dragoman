@@ -83,7 +83,8 @@ let evaluate conjunct scene = match conjunct with
     (* CASE 1 - a relation where x and y are the same *)
     | Relate (rel, x, y) when Core.Variable.equal x y ->
         begin match Core.Scene.relation scene rel with
-            | Some ls -> ls
+            | Some relation -> relation
+                |> Core.Relation.to_list
                 |> CCList.filter_map
                     (fun (i, j) -> if i == j then Some [i] else None)
                 |> Core.Table.of_list [x]
@@ -91,7 +92,8 @@ let evaluate conjunct scene = match conjunct with
     (* CASE 2 - a relation where x and y are distinct variables *)
     | Relate (rel, x, y) ->
         begin match Core.Scene.relation scene rel with
-            | Some ls -> ls
+            | Some relation -> relation
+                |> Core.Relation.to_list
                 |> CCList.map (fun (i, j) -> [i ; j])
                 |> Core.Table.of_list [x ; y]
             | _ -> Some (Core.Table.empty [x]) end

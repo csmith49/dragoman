@@ -9,6 +9,20 @@ type t = {
     relations : Relation.t RelMap.t;
 }
 
+(* CONSTRUCTION *)
+let empty = {
+    things = IndexMap.empty;
+    relations = RelMap.empty;
+}
+
+let add_thing scene idx thing = {
+    scene with things = IndexMap.add idx thing scene.things
+}
+
+let add_relation scene key relation = {
+    scene with relations = RelMap.add key relation scene.relations
+}
+
 let of_json json = let module J = Utility.JSON in
     let things = J.Parse.get 
         "objects"
