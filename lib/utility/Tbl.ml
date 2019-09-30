@@ -17,6 +17,7 @@ module Make (Key : KEY) (Value : VALUE) = struct
     type value = Value.t
     
     type row = value list
+    type keyed_row = (key * value) list
     type column = value list
 
     type t = {
@@ -138,13 +139,18 @@ module Make (Key : KEY) (Value : VALUE) = struct
     let join_all tbls =
         CCList.fold_left join join_identity tbls
 
-    let filter key pred tbl =
-        let getter = getter key tbl in
-        let row_pred r = match getter r with
-            | Some v -> pred v
-            | None -> false in
+    let keyed_rows tbl = 
+        let key_up row = CCList.map2 (fun k -> fun v -> (k, v)) tbl.keys row in
+        CCList.map key_up tbl.rows
+
+    let filter pred tbl =
+        let rows = tbl
+            |> keyed_rows
+            |> CCList.filter pred
+            (* unkey each row *)
+            |> CCList.map (CCList.map snd) in 
         {
-            tbl with rows = CCList.filter row_pred tbl.rows;
+            tbl with rows = rows;
         }
 
     (* exposed comparisons *)

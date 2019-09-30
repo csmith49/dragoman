@@ -37,6 +37,9 @@ module Make (Key : KEY) (Value : VALUE) : sig
     (** A row is a horizontal slice of a table, and knows nothing about being indexed by keys *)
     type row = value list
 
+    (* for rows that do know something about their keys, we have indexed rows (just assoc lists) *)
+    type keyed_row = (key * value) list
+
     (** A column is a vertical slice of a table
     
     like rows, columns know nothing of the key that indexes them *)
@@ -97,7 +100,7 @@ module Make (Key : KEY) (Value : VALUE) : sig
     (** [filter key predicate tbl] returns the table of all rows in [tbl] that satisfy [predicate] on the value indexed by [key]
     
     if [key] is not in [keys tbl] then the output will have no rows *)
-    val filter : key -> (value -> bool) -> t -> t
+    val filter : (keyed_row -> bool) -> t -> t
 
     (** {2} Comparison *)
 
