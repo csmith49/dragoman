@@ -1,8 +1,7 @@
-type index = int
-type relation = string
+type relation_key = string
 
 module RelMap = CCMap.Make(CCString)
-module IndexMap = CCMap.Make(CCInt)
+module IndexMap = CCMap.Make(Index)
 
 type t = {
     things : Thing.t IndexMap.t;
@@ -35,7 +34,7 @@ let of_json json = let module J = Utility.JSON in
     match things, relations with
         | Some things, Some relations -> 
             let things = things
-                |> CCList.mapi (fun i -> fun thing -> (i, thing))
+                |> CCList.mapi (fun i -> fun thing -> (Index.of_int i, thing))
                 |> IndexMap.of_list in
             Some { things = things ; relations = relations }
         | _ -> None
@@ -54,3 +53,10 @@ let relations scene = scene.relations
 let relation scene rel = RelMap.get rel scene.relations
 
 let things_idx scene = IndexMap.to_list scene.things
+
+let add_attribute_to_thing scene idx attr cat =
+    let thing = match thing scene idx with
+        | Some thing -> thing
+        | None -> Thing.empty in
+    let thing' = Thing.add_attribute thing attr cat in
+    add_thing scene idx thing'

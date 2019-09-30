@@ -1,7 +1,7 @@
 (* abstract table type *)
 type t
-type row = Scene.index list
-type column = Scene.index list
+type row = Index.t list
+type column = Index.t list
 
 (* construction *)
 val empty : Variable.t list -> t

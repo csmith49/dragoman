@@ -4,6 +4,7 @@ let of_json = Utility.JSON.Literal.string
 let to_json var = `String var
 
 let of_indexed_rep base index = base ^ "." ^ (string_of_int index)
+let of_string str = str
 
 let compare = CCString.compare
 let equal = CCString.equal

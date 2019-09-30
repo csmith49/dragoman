@@ -21,3 +21,8 @@ let attributes thing = thing
     |> AttrMap.to_list
     |> CCList.map fst
 let attribute thing attr = AttrMap.find_opt attr thing
+
+(* construction *)
+let empty = AttrMap.empty
+let add_attribute thing attr cat = AttrMap.add attr cat thing
+let add_attributes thing attrs = AttrMap.add_list thing attrs

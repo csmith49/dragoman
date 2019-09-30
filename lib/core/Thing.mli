@@ -17,3 +17,8 @@ val to_string : t -> string
 (* getting attributes *)
 val attributes : t -> attribute list
 val attribute : t -> attribute -> Cat.t option
+
+(* construction *)
+val empty : t
+val add_attribute : t -> attribute -> Cat.t -> t
+val add_attributes : t -> (attribute * Cat.t) list -> t

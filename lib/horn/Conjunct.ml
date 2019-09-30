@@ -1,5 +1,5 @@
 type t =
-    | Relate of Core.Scene.relation * Core.Variable.t * Core.Variable.t
+    | Relate of Core.Scene.relation_key * Core.Variable.t * Core.Variable.t
     | Select of Core.Thing.attribute * Core.Cat.t * Core.Variable.t
 
 (* getters *)

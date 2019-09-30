@@ -6,6 +6,7 @@ val to_json : t -> Yojson.Basic.t
 
 (* easy way of producing canonical forms *)
 val of_indexed_rep : string -> int -> t
+val of_string : string -> t
 
 (* manipulation *)
 type variable = t
