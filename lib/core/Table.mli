@@ -1,7 +1,7 @@
 (* abstract table type *)
 type t
-type row = Index.t list
-type column = Index.t list
+type row = Value.t list
+type column = Value.t list
 
 (* construction *)
 val empty : Variable.t list -> t

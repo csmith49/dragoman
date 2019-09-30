@@ -1,6 +1,6 @@
 type t =
     | Relate of Core.Scene.relation_key * Core.Variable.t * Core.Variable.t
-    | Select of Core.Thing.attribute * Core.Cat.t * Core.Variable.t
+    | Select of Core.Thing.attribute * Core.Value.t * Core.Variable.t
 
 (* getters *)
 let variables = function
@@ -25,7 +25,7 @@ let relate_of_json json = let module J = Utility.JSON in
 
 let select_of_json json = let module J = Utility.JSON in
     let attribute = J.Parse.get "attribute" J.Literal.string json in
-    let value = J.Parse.get "value" Core.Cat.of_json json in
+    let value = J.Parse.get "value" Core.Value.of_json json in
     let variable = J.Parse.get "variable" Core.Variable.of_json json in
     match attribute, value, variable with
         | Some attr, Some v, Some x -> Some (Select (attr, v, x))
@@ -49,7 +49,7 @@ let to_json = function
         `Assoc [
             ("kind", `String "select");
             ("attribute", `String attr);
-            ("value", Core.Cat.to_json value);
+            ("value", Core.Value.to_json value);
             ("variable", Core.Variable.to_json x)
         ]
 
@@ -57,7 +57,7 @@ let to_string = function
     | Relate (rel, x, y) ->
         rel ^ "(" ^ (Core.Variable.to_string x) ^ ", " ^ (Core.Variable.to_string y) ^ ")"
     | Select (attr, value, x) ->
-        (Core.Variable.to_string x) ^ "." ^ attr ^ " = " ^ (Core.Cat.to_string value)
+        (Core.Variable.to_string x) ^ "." ^ attr ^ " = " ^ (Core.Value.to_string value)
 
 
 (* equality and the like *)
@@ -65,7 +65,7 @@ let equal left right = match left, right with
     | Relate (rel_l, x_l, y_l), Relate (rel_r, x_r, y_r) ->
         (rel_l == rel_r) && (Core.Variable.equal x_l x_r) && (Core.Variable.equal y_l y_r)
     | Select (a_l, val_l, x_l), Select (a_r, val_r, x_r) ->
-        (a_l == a_r) && (Core.Cat.equal val_l val_r) && (Core.Variable.equal x_l x_r)
+        (a_l == a_r) && (Core.Value.equal val_l val_r) && (Core.Variable.equal x_l x_r)
     | _ -> false
 
 let equal_wrt_mapping mapping left right = match left, right with
@@ -74,7 +74,7 @@ let equal_wrt_mapping mapping left right = match left, right with
             |> Core.Variable.Mapping.make_equal_in x_l x_r
             |> Core.Variable.Mapping.make_equal_in y_l y_r)
     | Select (a_l, val_l, x_l), Select (a_r, val_r, x_r) when a_l == a_r ->
-        if not (Core.Cat.equal val_l val_r) then None else
+        if not (Core.Value.equal val_l val_r) then None else
         Some (mapping |> Core.Variable.Mapping.make_equal_in x_l x_r)
     | _ -> None
 
@@ -121,5 +121,5 @@ let to_sql = function
         let q = Printf.sprintf "SELECT object as '%s' FROM %s WHERE value = %s"
             (Core.Variable.to_string x)
             attr
-            (Core.Cat.to_string value)
+            (Core.Value.to_string value)
         in SQL.Query.of_string q

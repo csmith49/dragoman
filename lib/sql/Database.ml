@@ -6,8 +6,8 @@ let of_file filename =
 (* convert a sql row to a "real" row *)
 let convert_row (sql_row : Sqlite3.row_not_null) : Core.Table.row option = sql_row
     |> CCArray.to_list
-    |> CCList.map (CCInt.of_string)
-    |> CCList.all_some
+    |> CCList.map (Core.Value.of_string)
+    |> CCOpt.return
 
 (* convert a header to a Variable list *)
 let convert_header (sql_headers : Sqlite3.headers) : Core.Variable.t list option = sql_headers
@@ -29,6 +29,34 @@ let evaluate db query =
     let _ = Sqlite3.exec_not_null db ~cb:callback (Query.to_string query) in
     if !success then Core.Table.of_list !keys !rows else None
 
+(* UTILITY *)
+(* module VarSet = CCSet.Make(Core.Variable)
+
+let relation db relation ?(source=None) ?(destination=None) =
+    (* fun to convert id lists to comma concatenated lists *)
+    let index_set_rep ids = ids |> CCList.map Core.Index.to_string |> CCString.concat ", " in
+    (* based on what is provided, generate the appropriate where clause *)
+    let where_string = match (CCOpt.map index_set_rep source), (CCOpt.map index_set_rep destination) with
+        | Some srcs, Some dests -> Printf.sprintf
+            "WHERE source IN (%s) AND destination IN (%s)" srcs dests
+        | None, Some dests -> Printf.sprintf
+            "WHERE destination IN (%s)" dests
+        | Some srcs, None -> Printf.sprintf
+            "WHERE source IN (%s)" srcs
+        | None, None -> "" in
+    (* generate the query from simple string formatting *)
+    let query_string = Printf.sprintf "SELECT * FROM %s %s" relation where_string in
+    let query = Query.of_string query_string in
+    (* evaluate and extract tuples, if at all possible *)
+    match evaluate db query with
+        | Some table ->
+            let src = Core.Table.get (Core.Variable.of_string "source") table in
+            let dest = Core.Table.get (Core.Variable.of_string "destination") table in
+            begin match src, dest with
+                | Some src, Some dest -> CCList.map2 (fun x -> fun y -> (x, y)) src dest
+                | _ -> [] end
+        | None -> []
+     *)
 (* TODO : finish this, must add better scene construction tools *)
 (* let scene db index view size = raise (Invalid_argument "") *)
 let scene _ _ _ _ = raise (Invalid_argument "no")

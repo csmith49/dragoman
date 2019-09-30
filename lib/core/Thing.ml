@@ -2,17 +2,17 @@ type attribute = string
 
 module AttrMap = CCMap.Make(CCString)
 
-type t = Cat.t AttrMap.t
+type t = Value.t AttrMap.t
 
 let of_json json = let module J = Utility.JSON in
-    J.Parse.assoc_some_items Cat.of_json json |> CCOpt.map (AttrMap.of_list)
+    J.Parse.assoc_some_items Value.of_json json |> CCOpt.map (AttrMap.of_list)
 
 let to_json thing = `Assoc (thing
-    |> AttrMap.map (Cat.to_json)
+    |> AttrMap.map (Value.to_json)
     |> AttrMap.to_list)
 
-let compare = AttrMap.compare (Cat.compare)
-let equal = AttrMap.equal (Cat.equal)
+let compare = AttrMap.compare (Value.compare)
+let equal = AttrMap.equal (Value.equal)
 let hash = CCHash.poly
 
 let to_string _ = "THING"

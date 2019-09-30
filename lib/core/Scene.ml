@@ -1,21 +1,21 @@
 type relation_key = string
 
 module RelMap = CCMap.Make(CCString)
-module IndexMap = CCMap.Make(Index)
+module ValueMap = CCMap.Make(Value)
 
 type t = {
-    things : Thing.t IndexMap.t;
+    things : Thing.t ValueMap.t;
     relations : Relation.t RelMap.t;
 }
 
 (* CONSTRUCTION *)
 let empty = {
-    things = IndexMap.empty;
+    things = ValueMap.empty;
     relations = RelMap.empty;
 }
 
 let add_thing scene idx thing = {
-    scene with things = IndexMap.add idx thing scene.things
+    scene with things = ValueMap.add idx thing scene.things
 }
 
 let add_relation scene key relation = {
@@ -34,8 +34,8 @@ let of_json json = let module J = Utility.JSON in
     match things, relations with
         | Some things, Some relations -> 
             let things = things
-                |> CCList.mapi (fun i -> fun thing -> (Index.of_int i, thing))
-                |> IndexMap.of_list in
+                |> CCList.mapi (fun i -> fun thing -> (`Int i, thing))
+                |> ValueMap.of_list in
             Some { things = things ; relations = relations }
         | _ -> None
 
@@ -44,7 +44,7 @@ let to_json _ = `Null
 
 let to_string scene = Yojson.Basic.to_string (to_json scene)
 
-let thing scene i = IndexMap.get i scene.things
+let thing scene i = ValueMap.get i scene.things
 
 let relations scene = scene.relations
     |> RelMap.to_list
@@ -52,11 +52,11 @@ let relations scene = scene.relations
 
 let relation scene rel = RelMap.get rel scene.relations
 
-let things_idx scene = IndexMap.to_list scene.things
+let things_idx scene = ValueMap.to_list scene.things
 
-let add_attribute_to_thing scene idx attr cat =
+let add_attribute_to_thing scene idx attr v =
     let thing = match thing scene idx with
         | Some thing -> thing
         | None -> Thing.empty in
-    let thing' = Thing.add_attribute thing attr cat in
+    let thing' = Thing.add_attribute thing attr v in
     add_thing scene idx thing'
