@@ -23,7 +23,7 @@ end
 
 let rec to_string = function
     | `Relation rk -> rk
-    | `Select (s, r) -> Printf.sprintf "(select %s %s)"
+    | `Select (s, r) -> Printf.sprintf "(select (%s) %s)"
         (selector_to_string s)
         (to_string r)
     | `Project (xs, r) -> Printf.sprintf "(project (%s) %s)"

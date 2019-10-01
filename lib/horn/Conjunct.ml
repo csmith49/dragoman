@@ -20,9 +20,11 @@ let to_query = function
         let mapping = [(Query.X.left, x)] in
         `Rename (
             mapping,
-            `Select (
-                `EqualConst (Query.X.left, v),
-                `Relation rk))
+            `Project (
+                [Query.X.left],
+                `Select (
+                    `EqualConst (Query.X.right, v),
+                    `Relation rk)))
 
 let variables = function
     | `Relate (_, l, r) -> [l ; r]
