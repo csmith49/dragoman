@@ -15,11 +15,5 @@ val to_string : t -> string
 
 (* structural equality *)
 val equal : t -> t -> bool
-(* equality modulo renaming, extending first argument *)
-val equal_wrt_mapping : Core.Variable.Mapping.t -> t -> t -> Core.Variable.Mapping.t option
 
-(* making a simple table *)
-val evaluate : t -> Core.Scene.t -> Core.Table.t option
-
-(* generating sql statements that produce the same table as evaluate *)
-val to_sql : t -> SQL.Query.t
+val to_query : t -> Core.Query.t

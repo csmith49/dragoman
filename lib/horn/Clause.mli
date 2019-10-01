@@ -14,8 +14,5 @@ val to_json : t -> Yojson.Basic.t
 (* printing *)
 val to_string : t -> string
 
-(* the meat and potatos - evaluating to produce a table *)
-val evaluate : ?verbose:bool -> t -> Core.Scene.t -> Core.Table.t option
-
-(* and the sql version of the above *)
-val to_sql : t -> SQL.Query.t
+(* conversions *)
+val to_query : t -> Core.Query.t

@@ -22,12 +22,12 @@ let vprint str = if !verbose then print_endline str else ()
 (* load the input file *)
 let _ = vprint "Loading problem..."
 let problem = Yojson.Basic.from_file !input_filename
-    |> Problem.of_json
+    |> Problem.CLEVR.of_json
     |> CCOpt.get_exn
 
 let _ = vprint ("Evaluating " ^ (Horn.Clause.to_string problem.clause) ^ "...")
-let table = Horn.Clause.evaluate ~verbose:!verbose problem.clause problem.scene
-    |> CCOpt.get_exn
+let query = Horn.Clause.to_query problem.clause
+let table = Core.Query.evaluate problem.store query |> CCOpt.get_exn
 
 let _ = vprint "Writing output..."
 let _ = if !output_filename = "" 

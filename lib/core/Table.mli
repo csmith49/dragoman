@@ -25,4 +25,3 @@ val equal : t -> t -> bool
 
 (* i/o *)
 val to_csv : ?delimiter:string -> t -> string
-val of_json : Yojson.Basic.t -> t option

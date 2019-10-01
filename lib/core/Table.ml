@@ -26,11 +26,3 @@ let of_relation rel x y =
         |> Relation.to_list
         |> CCList.map (fun (x, y) -> [x ; y]) in
     T.of_list [x ; y] rows
-
-(* Tbl doesn't give a mechanism for making tables from JSON, but we'll want to do so for testing *)
-let of_json json = let module J = Utility.JSON in
-    let keys = J.Parse.get "keys" (J.Parse.list Variable.of_json) json in
-    let rows = J.Parse.get "rows" (J.Parse.list (J.Parse.list Value.of_json)) json in
-    match keys, rows with
-        | Some keys, Some rows -> of_list keys rows
-        | _ -> None 

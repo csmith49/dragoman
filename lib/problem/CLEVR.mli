@@ -1,5 +1,5 @@
 type t = {
-    scene : Core.Scene.t;
+    store : Core.Store.t;
     clause : Horn.Clause.t;
     expected : Core.Table.t option;
 }

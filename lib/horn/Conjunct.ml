@@ -1,33 +1,36 @@
-type t =
-    | Relate of Core.Scene.relation_key * Core.Variable.t * Core.Variable.t
-    | Select of Core.Thing.attribute * Core.Value.t * Core.Variable.t
+open Core
+
+type t = [
+    | `Relate of Store.relation_key * Variable.t * Variable.t
+    | `Select of Store.relation_key * Variable.t * Value.t
+]
 
 let to_query = function
-    | Select (attr, v, x) ->
-        let left = Core.Variable.of_string "left" in
-        let selector = `Equality (left, v) in
-        `Rename ([(left, x)], `Select (selector, `Relation attr))
-    | Relate (rk, x, y) when Core.Variable.equal x y ->
-        let left = Core.Variable.of_string "left" in
-        let right = Core.Variable.of_string "right" in
-        let selector = `EqualValues (left, right) in
-        `Rename ([(left, x) ; (right, y)], `Select (selector, `Relation rk))
-    | Relate (rk, x, y) ->
-        let left = Core.Variable.of_string "left" in
-        let right = Core.Variable.of_string "right" in
-        `Rename ([(left, x) ; (right, y)], `Relation rk)
+    | `Relate (rk, l, r) when Variable.equal l r ->
+        let mapping = [(Query.X.left, l) ; (Query.X.right, r)] in
+        `Rename (
+            mapping,
+            `Select (
+                `Equal (Query.X.left, Query.X.right),
+                `Relation rk))
+    | `Relate (rk, l, r) ->
+        let mapping = [(Query.X.left, l) ; (Query.X.right, r)] in
+        `Rename (mapping, `Relation rk)
+    | `Select (rk, x, v) ->
+        let mapping = [(Query.X.left, x)] in
+        `Rename (
+            mapping,
+            `Select (
+                `EqualConst (Query.X.left, v),
+                `Relation rk))
 
-(* getters *)
 let variables = function
-    | Relate (_, l, r) -> [l ; r]
-    | Select (_, _, x) -> [x]
+    | `Relate (_, l, r) -> [l ; r]
+    | `Select (_, x, _) -> [x]
 
-(* manipulation *)
-let remap conjunct mapping = match conjunct with
-    | Relate (r, x, y) ->
-        Relate (r, Core.Variable.Mapping.remap x mapping, Core.Variable.Mapping.remap y mapping)
-    | Select (a, c, x) ->
-        Select (a, c, Core.Variable.Mapping.remap x mapping)
+let remap conj mapping = match conj with
+    | `Relate (rk, l, r) -> `Relate (rk, Variable.Mapping.remap l mapping, Variable.Mapping.remap r mapping)
+    | `Select (rk, x, v) -> `Select (rk, Variable.Mapping.remap x mapping, v)
 
 (* to and from json *)
 let relate_of_json json = let module J = Utility.JSON in
@@ -35,7 +38,7 @@ let relate_of_json json = let module J = Utility.JSON in
     let left = J.Parse.get "left" Core.Variable.of_json json in
     let right = J.Parse.get "right" Core.Variable.of_json json in
     match relation, left, right with
-        | Some rel, Some l, Some r -> Some (Relate (rel, l, r))
+        | Some rel, Some l, Some r -> Some (`Relate (rel, l, r))
         | _ -> None
 
 let select_of_json json = let module J = Utility.JSON in
@@ -43,7 +46,7 @@ let select_of_json json = let module J = Utility.JSON in
     let value = J.Parse.get "value" Core.Value.of_json json in
     let variable = J.Parse.get "variable" Core.Variable.of_json json in
     match attribute, value, variable with
-        | Some attr, Some v, Some x -> Some (Select (attr, v, x))
+        | Some attr, Some v, Some x -> Some (`Select (attr, x, v))
         | _ -> None
 
 let of_json json = let module J = Utility.JSON in
@@ -53,88 +56,32 @@ let of_json json = let module J = Utility.JSON in
         | _ -> None
 
 let to_json = function
-    | Relate (rel, x, y) ->
+    | `Relate (rel, x, y) ->
         `Assoc [
             ("kind", `String "relate");
             ("relation", `String rel);
             ("left", Core.Variable.to_json x);
             ("right", Core.Variable.to_json y)
         ]
-    | Select (attr, value, x) ->
+    | `Select (attr, x, v) ->
         `Assoc [
             ("kind", `String "select");
             ("attribute", `String attr);
-            ("value", Core.Value.to_json value);
+            ("value", Core.Value.to_json v);
             ("variable", Core.Variable.to_json x)
         ]
 
 let to_string = function
-    | Relate (rel, x, y) ->
+    | `Relate (rel, x, y) ->
         rel ^ "(" ^ (Core.Variable.to_string x) ^ ", " ^ (Core.Variable.to_string y) ^ ")"
-    | Select (attr, value, x) ->
-        (Core.Variable.to_string x) ^ "." ^ attr ^ " = " ^ (Core.Value.to_string value)
+    | `Select (attr, x, v) ->
+        (Core.Variable.to_string x) ^ "." ^ attr ^ " = " ^ (Core.Value.to_string v)
 
 
 (* equality and the like *)
 let equal left right = match left, right with
-    | Relate (rel_l, x_l, y_l), Relate (rel_r, x_r, y_r) ->
+    | `Relate (rel_l, x_l, y_l), `Relate (rel_r, x_r, y_r) ->
         (rel_l == rel_r) && (Core.Variable.equal x_l x_r) && (Core.Variable.equal y_l y_r)
-    | Select (a_l, val_l, x_l), Select (a_r, val_r, x_r) ->
+    | `Select (a_l, x_l, val_l), `Select (a_r, x_r, val_r) ->
         (a_l == a_r) && (Core.Value.equal val_l val_r) && (Core.Variable.equal x_l x_r)
     | _ -> false
-
-let equal_wrt_mapping mapping left right = match left, right with
-    | Relate (rel_l, x_l, y_l), Relate (rel_r, x_r, y_r) when rel_l == rel_r ->
-        Some (mapping
-            |> Core.Variable.Mapping.make_equal_in x_l x_r
-            |> Core.Variable.Mapping.make_equal_in y_l y_r)
-    | Select (a_l, val_l, x_l), Select (a_r, val_r, x_r) when a_l == a_r ->
-        if not (Core.Value.equal val_l val_r) then None else
-        Some (mapping |> Core.Variable.Mapping.make_equal_in x_l x_r)
-    | _ -> None
-
-(* table construction *)
-let evaluate conjunct scene = match conjunct with
-    (* CASE 1 - a relation where x and y are the same *)
-    | Relate (rel, x, y) when Core.Variable.equal x y ->
-        begin match Core.Scene.relation scene rel with
-            | Some relation -> relation
-                |> Core.Relation.to_list
-                |> CCList.filter_map
-                    (fun (i, j) -> if i == j then Some [i] else None)
-                |> Core.Table.of_list [x]
-            | _ -> Some (Core.Table.empty [x]) end
-    (* CASE 2 - a relation where x and y are distinct variables *)
-    | Relate (rel, x, y) ->
-        begin match Core.Scene.relation scene rel with
-            | Some relation -> relation
-                |> Core.Relation.to_list
-                |> CCList.map (fun (i, j) -> [i ; j])
-                |> Core.Table.of_list [x ; y]
-            | _ -> Some (Core.Table.empty [x]) end
-    (* CASE 3 - selection via attribute *)
-    | Select (attr, value, x) ->
-        let rows = Core.Scene.things_idx scene
-            |> CCList.filter_map (fun (i, thing) ->
-                match Core.Thing.attribute thing attr with
-                    | Some cat -> if cat = value
-                        then Some [i]
-                        else None
-                    | _ -> None) in
-        if CCList.is_empty rows then
-            Some (Core.Table.empty [x])
-        else Core.Table.of_list [x] rows
-
-let to_sql = function
-    | Relate (rel, x, y) ->
-        let q = Printf.sprintf "SELECT source as '%s', destination as '%s' FROM %s" 
-            (Core.Variable.to_string x)
-            (Core.Variable.to_string y)
-            rel
-        in SQL.Query.of_string q
-    | Select (attr, value, x) ->
-        let q = Printf.sprintf "SELECT object as '%s' FROM %s WHERE value = %s"
-            (Core.Variable.to_string x)
-            attr
-            (Core.Value.to_string value)
-        in SQL.Query.of_string q

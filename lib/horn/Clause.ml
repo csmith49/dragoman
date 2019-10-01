@@ -21,22 +21,7 @@ let to_json clause = `List (
 (* printing *)
 let to_string clause = CCString.concat ", " (CCList.map Conjunct.to_string clause)
 
-
-(* producing tables *)
-let evaluate ?(verbose=false) clause scene =
-    let tables = CCList.map (fun c -> 
-        let tbl = Conjunct.evaluate c scene in
-        let _ = if verbose then print_endline ("Evaluating conjunct " ^ (Conjunct.to_string c) ^ ":") in
-        let _ = match tbl with
-            | Some tbl -> if verbose then print_endline ( (Core.Table.to_csv tbl) ^ "\n")
-            | _ -> print_endline "NO TABLE\n" in
-        tbl
-    ) clause in
-    match CCList.all_some tables with
-        | Some tables -> Some (Core.Table.join_all tables)
-        | _ -> None
-
-(* sql querying *)
-let to_sql clause = clause
-    |> CCList.map Conjunct.to_sql
-    |> SQL.Query.join_all
+let rec to_query = function
+    | [] -> `Empty
+    | conj :: [] -> Conjunct.to_query conj
+    | conj :: rest -> `Join (Conjunct.to_query conj, to_query rest)
