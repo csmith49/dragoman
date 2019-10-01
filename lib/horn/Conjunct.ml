@@ -2,6 +2,21 @@ type t =
     | Relate of Core.Scene.relation_key * Core.Variable.t * Core.Variable.t
     | Select of Core.Thing.attribute * Core.Value.t * Core.Variable.t
 
+let to_query = function
+    | Select (attr, v, x) ->
+        let left = Core.Variable.of_string "left" in
+        let selector = `Equality (left, v) in
+        `Rename ([(left, x)], `Select (selector, `Relation attr))
+    | Relate (rk, x, y) when Core.Variable.equal x y ->
+        let left = Core.Variable.of_string "left" in
+        let right = Core.Variable.of_string "right" in
+        let selector = `EqualValues (left, right) in
+        `Rename ([(left, x) ; (right, y)], `Select (selector, `Relation rk))
+    | Relate (rk, x, y) ->
+        let left = Core.Variable.of_string "left" in
+        let right = Core.Variable.of_string "right" in
+        `Rename ([(left, x) ; (right, y)], `Relation rk)
+
 (* getters *)
 let variables = function
     | Relate (_, l, r) -> [l ; r]
