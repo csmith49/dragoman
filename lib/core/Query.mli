@@ -25,8 +25,5 @@ end
 (* for simple printing *)
 val to_string : t -> string
 
-(* conversion to sql string *)
-val to_sql : t -> string
-
 (* evaluate over a scene *)
 val evaluate : Store.t -> t -> Table.t option

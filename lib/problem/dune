@@ -1,4 +1,4 @@
 (library
     (name problem)
-    (libraries core horn utility)
+    (libraries core horn utility sqlite3)
 )

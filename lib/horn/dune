@@ -1,4 +1,4 @@
 (library
     (name horn)
-    (libraries core containers utility SQL)
+    (libraries core containers utility)
 )

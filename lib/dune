@@ -1,4 +1,4 @@
 (library
     (name dragoman)
-    (libraries core horn problem utility SQL)
+    (libraries core horn problem utility)
 )

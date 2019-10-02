@@ -54,41 +54,6 @@ and selector_to_string = function
         (Variable.to_string x)
         (Variable.to_string y)
 
-(* TO SQL STRINGS *)
-
-let rec selector_to_sql = function
-    | `EqualConst (x, v) -> Printf.sprintf "%s = %s"
-        (Variable.to_string x)
-        (Value.to_string v)
-    | `Equal (x, y) -> Printf.sprintf "%s = %s"
-        (Variable.to_string x)
-        (Variable.to_string y)
-    | `And (l, r) -> Printf.sprintf "(%s) AND (%s)"
-        (selector_to_sql l)
-        (selector_to_sql r)
-    | `Or (l, r) -> Printf.sprintf "(%s) OR (%s)"
-        (selector_to_sql l)
-        (selector_to_sql r)
-
-let rec to_sql = function
-    | `Relation rk -> Printf.sprintf "SELECT * FROM %s" rk
-    | `Select (selector, relation) -> Printf.sprintf "SELECT * FROM (%s) WHERE %s"
-        (to_sql relation)
-        (selector_to_sql selector)
-    | `Project (vars, relation) -> Printf.sprintf "SELECT %s FROM (%S)"
-        (vars |> CCList.map Variable.to_string |> CCString.concat ", ")
-        (to_sql relation)
-    | `Rename (mapping, relation) ->
-        let bts (l, r) = Printf.sprintf "%s as %s"
-            (Variable.to_string l)
-            (Variable.to_string r) in
-        Printf.sprintf "SELECT %s FROM (%S)"
-            (mapping |> CCList.map bts |> CCString.concat ", ")
-            (to_sql relation)
-    | `Join (l, r) -> Printf.sprintf "SELECT * FROM ((%s) JOIN (%s))"
-        (to_sql l)
-        (to_sql r)
-    | `Empty -> "()"
 
 (* EVALUATION *)
 
