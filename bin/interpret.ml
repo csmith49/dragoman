@@ -36,8 +36,8 @@ let _ = if !output_filename = ""
         if !test then match problem.expected with
             | Some e -> if Core.Table.equal table e 
                 then print_endline "[OK]"
-                else print_endline "[FAIL]"
-            | None -> print_endline "[NO EXPECTATION]"
+                else print_endline "[  ]"
+            | None -> print_endline "[??]"
         else table |> Core.Table.to_csv |> print_endline
     else CCIO.with_out 
             !output_filename 
